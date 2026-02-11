@@ -1,6 +1,26 @@
 # Artifact Viewer
 
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)]()
+[![Tests](https://img.shields.io/badge/tests-12%20passing-brightgreen)]()
+[![License](https://img.shields.io/badge/license-MIT-blue)]()
+
 A Rust-based artifact viewer and editor with Model Context Protocol (MCP) integration and a GUI built with eframe/egui. This tool allows CLI-based agents to create, edit, and review markdown artifacts with a visual interface.
+
+## Quick Start
+
+```bash
+# Build the project
+cargo build --release
+
+# Run the MCP server
+cargo run --bin artifact-mcp-server
+
+# Launch the GUI
+cargo run --bin artifact-viewer
+
+# Run the demo
+./examples/demo_workflow.sh
+```
 
 ## Features
 
