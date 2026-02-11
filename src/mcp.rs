@@ -9,6 +9,7 @@ use crate::{storage::Storage, review::ReviewManager};
 
 #[derive(Debug, Deserialize)]
 struct McpRequest {
+    #[serde(rename = "jsonrpc")]
     _jsonrpc: String,
     id: Option<Value>,
     method: String,
