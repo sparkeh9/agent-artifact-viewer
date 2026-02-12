@@ -15,14 +15,81 @@ This is a demo file to test the comment system.
 `;
 
 import { TooltipProvider } from "./components/TooltipContext";
-
 import { useCommentStore } from "./store/commentStore";
+
+import { getMatches } from "@tauri-apps/plugin-cli";
+import { listen } from "@tauri-apps/api/event";
 
 function App() {
     const [content, setContent] = useState(DUMMY_MD);
-    const [path] = useState("d:\\code\\oss\\agent-artifact-viewer\\demo.md");
+    const [path, setPath] = useState("d:\\code\\oss\\agent-artifact-viewer\\demo.md");
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [isDragging, setIsDragging] = useState(false);
     const { loadComments } = useCommentStore();
+
+    useEffect(() => {
+        // Handle CLI args
+        console.log("Checking CLI matches...");
+        getMatches().then((matches) => {
+            console.log("CLI Matches:", matches);
+            if (matches.args.file && matches.args.file.value) {
+                const filePath = matches.args.file.value as string;
+                console.log("Opening CLI file:", filePath);
+                setPath(filePath);
+                invoke<string>("read_file", { path: filePath })
+                    .then(setContent)
+                    .catch(console.error);
+            } else {
+                console.log("No CLI file argument found.");
+            }
+        }).catch(err => {
+            console.error("Failed to get CLI matches:", err);
+        });
+
+        // Handle File Drop (try multiple event names for compatibility)
+        const unlistenDrop = listen<string[]>('tauri://drop', (event) => {
+            console.log("Event: tauri://drop", event);
+            if (event.payload && event.payload.length > 0) {
+                const filePath = event.payload[0];
+                console.log("File dropped (tauri://drop):", filePath);
+                setPath(filePath);
+                invoke<string>("read_file", { path: filePath })
+                    .then(setContent)
+                    .catch(console.error);
+            }
+        });
+
+        const unlistenFileDrop = listen<string[]>('tauri://file-drop', (event) => {
+            console.log("Event: tauri://file-drop", event);
+            if (event.payload && event.payload.length > 0) {
+                const filePath = event.payload[0];
+                console.log("File dropped (tauri://file-drop):", filePath);
+                setPath(filePath);
+                invoke<string>("read_file", { path: filePath })
+                    .then(setContent)
+                    .catch(console.error);
+            }
+        });
+
+        const unlistenDragDrop = listen<any>('tauri://drag-drop', (event) => {
+            console.log("Event: tauri://drag-drop", event);
+            // The payload structure might differ for "drag-drop"
+            if (event.payload && event.payload.paths && event.payload.paths.length > 0) {
+                const filePath = event.payload.paths[0];
+                console.log("File dropped (tauri://drag-drop):", filePath);
+                setPath(filePath);
+                invoke<string>("read_file", { path: filePath })
+                    .then(setContent)
+                    .catch(console.error);
+            }
+        });
+
+        return () => {
+            unlistenDrop.then(f => f());
+            unlistenFileDrop.then(f => f());
+            unlistenDragDrop.then(f => f());
+        };
+    }, []);
 
     useEffect(() => {
         loadComments(path);

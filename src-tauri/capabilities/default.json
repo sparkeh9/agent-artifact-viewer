@@ -5,6 +5,8 @@
   "windows": ["*"],
   "permissions": [
     "core:default",
+    "core:event:default",
+    "cli:default",
     {
       "identifier": "shell:allow-open",
       "allow": [

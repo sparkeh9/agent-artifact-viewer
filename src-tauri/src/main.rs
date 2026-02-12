@@ -47,6 +47,7 @@ fn read_file(path: String) -> Result<String, String> {
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_cli::init())
         .invoke_handler(tauri::generate_handler![
             open_file,
             read_file,
