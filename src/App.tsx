@@ -1,134 +1,32 @@
 import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { ChevronDown, Zap } from "lucide-react";
+import { ChevronDown, Zap, MessageSquare } from "lucide-react";
 import { MarkdownViewer } from "./components/MarkdownViewer";
+import { CommentSidebar } from "./components/CommentSidebar";
 
-const DUMMY_MD = `
-- Lists and blockquotes
+const DUMMY_MD = `# Demo Artifact
 
-> [!NOTE]
-> This is a standard GitHub-style **Note** alert, useful for background context.
+This is a demo file to test the comment system.
 
----
-
-## 2. Structural Elements
-
-### Tables
-| Feature | Supported | Description |
-| :--- | :---: | :--- |
-| Mermaid | ✅ | High-quality diagrams |
-| Alerts | ✅ | Colorful status blocks |
-| Carousels | ✅ | Interactive slide shows |
-
-### Mermaid Diagrams
-Visualize workflows and architectures directly:
-
-\`\`\`mermaid
-graph TD
-    A[Start] --> B{Process?}
-    B -- Yes --> C[Display Success]
-    B -- No --> D[Error Alert]
-    C --> E[End]
-    D --> E
-\`\`\`
-
----
-
-## 3. GitHub Status Alerts
-
-The viewer renders 5 distinct alert types:
-
-> [!TIP]
-> Use tips for helpful suggestions or best practices.
-
-> [!IMPORTANT]
-> Use important for essential requirements or critical steps.
-
-> [!WARNING]
-> Use warnings to signal potential problems or breaking changes.
-
-> [!CAUTION]
-> Use caution for high-risk actions that could cause data loss.
-
----
-
-## 4. Interactive Carousels
-
-Carousels allow you to cycle through multiple related pieces of content.
-
-:::carousel
-\`\`\`python
-# Slide 1: Python Code
-def hello_world():
-    print("Welcome to the Artifact Viewer!")
-\`\`\`
-<!-- slide -->
-\`\`\`javascript
-// Slide 2: Javascript Code
-console.log("Interactive carousels are powerful!");
-\`\`\`
-<!-- slide -->
-| Slide 3 | Table Content |
-| :--- | :--- |
-| Item | Definition |
-| Carousel | A rotating sequence of slides |
-:::
-
----
-
-## 5. Mermaid Diagrams
-
-Visualize workflows and architectures directly with pan & zoom support:
-
-\`\`\`mermaid
-graph TD
-    A[Start] --> B{Is it working?}
-    B -- Yes --> C[Great!]
-    B -- No --> D[Debug]
-    D --> B
-    C --> E[End]
-    
-    style A fill:#00ff41,stroke:#000,stroke-width:2px,color:#000
-    style B fill:#f2a900,stroke:#000,stroke-width:2px,color:#000
-    style D fill:#ff003c,stroke:#000,stroke-width:2px,color:#fff
-\`\`\`
-
----
-
-## 6. Code Diffs & File Links
-
-You can link directly to files and highlight changes using diff blocks:
-
-[App.tsx](file:///d:/code/oss/agent-artifact-viewer/src/App.tsx)
-[Cargo.toml](file:///d:/code/oss/agent-artifact-viewer/src-tauri/Cargo.toml)
-
-\`\`\`diff
-- Old feature documentation
-+ New interactive showcase feature
-  Stable base reference
-\`\`\`
-
----
-
-## 7. Embedded Media
-
-While we couldn't generate a custom image this time, you can embed any local media:
-
-![Showcase Placeholder](https://via.placeholder.com/800x400?text=Premium+Design+Showcase)
-
+## Features
+- Selection
+- Comments
+- Persistence
 `;
 
 import { TooltipProvider } from "./components/TooltipContext";
 
+import { useCommentStore } from "./store/commentStore";
+
 function App() {
     const [content, setContent] = useState(DUMMY_MD);
-    const [path] = useState("/artifacts/docs/v2.md");
+    const [path] = useState("d:\\code\\oss\\agent-artifact-viewer\\demo.md");
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const { loadComments } = useCommentStore();
 
     useEffect(() => {
-        // Initial sync with backend
-        invoke("set_artifact_content", { content: DUMMY_MD })
-            .catch(console.error);
-    }, []);
+        loadComments(path);
+    }, [path, loadComments]);
 
     return (
         <TooltipProvider>
@@ -155,6 +53,13 @@ function App() {
                             </div>
 
                             <div className="flex items-center gap-3">
+                                <button
+                                    onClick={() => setSidebarOpen(!sidebarOpen)}
+                                    className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/5 rounded-lg text-sm font-medium text-slate-400 transition-all hover:text-white"
+                                >
+                                    <MessageSquare size={16} />
+                                    Comments
+                                </button>
                                 <button className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/5 rounded-lg text-sm font-medium text-slate-400 transition-all hover:text-white">
                                     Review
                                     <ChevronDown className="w-4 h-4 text-slate-500" />
@@ -165,13 +70,19 @@ function App() {
                             </div>
                         </header>
 
-                        <section className="glass-panel rounded-custom flex-1 overflow-y-auto custom-scrollbar p-8">
-                            <div className="max-w-4xl mx-auto">
+                        <div className="flex flex-1 overflow-hidden gap-6">
+                            <section className="glass-panel rounded-custom flex-1 overflow-y-auto custom-scrollbar p-8">
                                 <div className="max-w-4xl mx-auto">
                                     <MarkdownViewer content={content} filePath={path} />
                                 </div>
-                            </div>
-                        </section>
+                            </section>
+
+                            <CommentSidebar
+                                filePath={path}
+                                visible={sidebarOpen}
+                                onClose={() => setSidebarOpen(false)}
+                            />
+                        </div>
                     </main>
                 </div>
 

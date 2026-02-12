@@ -1,0 +1,23 @@
+    Checking artifact-viewer v0.1.0 (D:\code\oss\agent-artifact-viewer\src-tauri)
+warning: unused import: `std::sync::Mutex`
+ --> src\comments.rs:4:5
+  |
+4 | use std::sync::Mutex;
+  |     ^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `tauri::State`
+ --> src\comments.rs:5:5
+  |
+5 | use tauri::State;
+  |     ^^^^^^^^^^^^
+
+warning: unused import: `tauri::State`
+ --> src\main.rs:6:5
+  |
+6 | use tauri::State;
+  |     ^^^^^^^^^^^^
+
+warning: `artifact-viewer` (bin "artifact-viewer") generated 3 warnings (run `cargo fix --bin "artifact-viewer" -p artifact-viewer` to apply 3 suggestions)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.90s

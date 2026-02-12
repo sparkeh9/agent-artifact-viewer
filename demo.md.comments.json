@@ -1,0 +1,48 @@
+{
+  "comments": [
+    {
+      "id": "a593255f-7448-4096-a6cd-7712f37b0724",
+      "target": {
+        "type": "selection",
+        "start": {
+          "path": "d:\\code\\oss\\agent-artifact-viewer\\demo.md",
+          "line": 3,
+          "column": 1,
+          "offset": 62
+        },
+        "end": {
+          "path": "d:\\code\\oss\\agent-artifact-viewer\\demo.md",
+          "line": 7,
+          "column": 12,
+          "offset": 102
+        },
+        "textQuote": "Features\n\nSelection\nComments\nPersistence"
+      },
+      "content": "asd",
+      "author": "User",
+      "timestamp": "2026-02-12T01:34:29.314Z"
+    },
+    {
+      "id": "bca27cce-f224-464b-b4fd-cbbf557b5e85",
+      "target": {
+        "type": "selection",
+        "start": {
+          "path": "d:\\code\\oss\\agent-artifact-viewer\\demo.md",
+          "line": 2,
+          "column": 22,
+          "offset": 35
+        },
+        "end": {
+          "path": "d:\\code\\oss\\agent-artifact-viewer\\demo.md",
+          "line": 3,
+          "column": 1,
+          "offset": 62
+        },
+        "textQuote": "o test the comment system.\n"
+      },
+      "content": "sss",
+      "author": "User",
+      "timestamp": "2026-02-12T01:34:36.348Z"
+    }
+  ]
+}

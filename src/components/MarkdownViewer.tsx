@@ -16,7 +16,7 @@ import { getFileIconUrl } from '../utils/vscode-icons';
 import { FileViewerModal } from './FileViewerModal';
 import { TooltipProvider, useTooltip } from './TooltipContext';
 import { useCommentStore } from '../store/commentStore';
-import { createSelectorFromSelection } from '../utils/selectors';
+import { createSelectorFromRange, createSelectorFromSelection } from '../utils/selectors';
 import { CommentButton } from './CommentButton';
 import { CommentInput } from './CommentInput';
 
@@ -282,7 +282,7 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content, filePat
 
     const handleSaveComment = (content: string) => {
         if (selectionState && filePath) {
-            const selector = createSelectorFromSelection(containerRef.current!, window.getSelection()!, filePath);
+            const selector = createSelectorFromRange(containerRef.current!, selectionState.range, filePath);
             if (selector) {
                 addComment({
                     target: selector,

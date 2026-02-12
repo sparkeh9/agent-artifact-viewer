@@ -11,7 +11,7 @@ export type Target =
     | { type: 'global' }
     | { type: 'file'; path: string }
     | { type: 'block'; blockId: string }
-    | { type: 'selection'; start: Anchor; end: Anchor; textQuote?: string };
+    | { type: 'selection'; start: Anchor; end: Anchor; textQuote: string };
 
 /**
  * Calculates the line and column number (1-indexed) for a given character offset in a text.
@@ -82,13 +82,11 @@ export function getOffsetInElement(root: Node, targetNode: Node, targetOffset: n
 }
 
 /**
- * Creates a Target from a DOM Selection and root element.
+ * Creates a Target from a DOM Range and root element.
+ * This is preferred over Selection as it handles cases where selection is lost (e.g. clicking Save).
  */
-export function createSelectorFromSelection(root: HTMLElement, selection: Selection, path: string): Target | null {
-    if (selection.rangeCount === 0) return null;
-    const range = selection.getRangeAt(0);
-
-    // Ensure selection is within root (or involves root)
+export function createSelectorFromRange(root: HTMLElement, range: Range, path: string): Target | null {
+    // Ensure range is within root (or involves root)
     if (!root.contains(range.commonAncestorContainer) && range.commonAncestorContainer !== root) return null;
 
     const startOffset = getOffsetInElement(root, range.startContainer, range.startOffset);
@@ -107,4 +105,13 @@ export function createSelectorFromSelection(root: HTMLElement, selection: Select
         end: { path, ...end, offset: endOffset },
         textQuote
     };
+}
+
+/**
+ * Creates a Target from a DOM Selection and root element.
+ */
+export function createSelectorFromSelection(root: HTMLElement, selection: Selection, path: string): Target | null {
+    if (selection.rangeCount === 0) return null;
+    const range = selection.getRangeAt(0);
+    return createSelectorFromRange(root, range, path);
 }
