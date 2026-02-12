@@ -15,6 +15,10 @@ import { Mermaid } from './Mermaid';
 import { getFileIconUrl } from '../utils/vscode-icons';
 import { FileViewerModal } from './FileViewerModal';
 import { TooltipProvider, useTooltip } from './TooltipContext';
+import { useCommentStore } from '../store/commentStore';
+import { createSelectorFromSelection } from '../utils/selectors';
+import { CommentButton } from './CommentButton';
+import { CommentInput } from './CommentInput';
 
 // Context to stabilize handlers and prevent re-renders of valid links
 interface LinkContextType {
@@ -27,6 +31,7 @@ const LinkContext = React.createContext<LinkContextType>({
 
 // Standalone Link Component to prevent re-creation
 const FileLink = React.memo(({ href, children }: any) => {
+    // ... rest of FileLink implementation ...
     const { openModal } = React.useContext(LinkContext);
     const { openTooltip, closeTooltip } = useTooltip();
     const filename = href?.split('/').pop() || '';
@@ -117,9 +122,10 @@ const FileLink = React.memo(({ href, children }: any) => {
 
 interface MarkdownViewerProps {
     content: string;
+    filePath?: string;
 }
 
-export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content }) => {
+export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content, filePath }) => {
     // Modal State
     const [previewModalOpen, setPreviewModalOpen] = React.useState(false);
     const [previewContent, setPreviewContent] = React.useState<string | null>(null);
@@ -213,17 +219,120 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content }) => {
         hr: () => <hr className="border-white/10 my-8" />,
     }), []); // Dependencies empty as FileLink uses context
 
+    const { addComment } = useCommentStore();
+
+    // Comment State
+    const [selectionState, setSelectionState] = React.useState<{
+        range: Range;
+        rect: DOMRect;
+        isCommenting: boolean;
+    } | null>(null);
+
+    const containerRef = React.useRef<HTMLDivElement>(null);
+
+    React.useEffect(() => {
+        const handleSelectionChange = () => {
+            const selection = window.getSelection();
+            if (!containerRef.current || !selection || selection.isCollapsed) {
+                // Only clear if not currently commenting
+                if (selectionState && !selectionState.isCommenting) {
+                    setSelectionState(null);
+                }
+                return;
+            }
+
+            const range = selection.getRangeAt(0);
+
+            // Check if selection is inside our container
+            if (!containerRef.current.contains(range.commonAncestorContainer)) {
+                return;
+            }
+
+            // If we are already commenting, don't update selection state to avoid jumping UI
+            if (selectionState?.isCommenting) return;
+
+            const rect = range.getBoundingClientRect();
+            // Don't show if empty rect (sometimes happens with empty selection)
+            if (rect.width === 0 && rect.height === 0) return;
+
+            setSelectionState({
+                range: range.cloneRange(),
+                rect,
+                isCommenting: false
+            });
+        };
+
+        document.addEventListener('selectionchange', handleSelectionChange);
+        // Also listen for mouseup to handle end of selection more reliably
+        document.addEventListener('mouseup', handleSelectionChange);
+        document.addEventListener('keyup', handleSelectionChange);
+
+        return () => {
+            document.removeEventListener('selectionchange', handleSelectionChange);
+            document.removeEventListener('mouseup', handleSelectionChange);
+            document.removeEventListener('keyup', handleSelectionChange);
+        };
+    }, [selectionState?.isCommenting]);
+
+    const handleAddComment = () => {
+        if (selectionState) {
+            setSelectionState({ ...selectionState, isCommenting: true });
+        }
+    };
+
+    const handleSaveComment = (content: string) => {
+        if (selectionState && filePath) {
+            const selector = createSelectorFromSelection(containerRef.current!, window.getSelection()!, filePath);
+            if (selector) {
+                addComment({
+                    target: selector,
+                    content: content,
+                    author: 'User', // TODO: Get actual user
+                });
+            }
+            setSelectionState(null);
+            window.getSelection()?.removeAllRanges();
+        }
+    };
+
+    const handleCancelComment = () => {
+        setSelectionState(null);
+        window.getSelection()?.removeAllRanges();
+    };
+
+
     return (
         <LinkContext.Provider value={contextValue}>
-            <ReactMarkdown
-                className="prose prose-invert max-w-none font-sans"
-                remarkPlugins={[remarkGfm, remarkDirective, remarkDirectiveRehype, remarkCarousel, remarkGithub]}
-                rehypePlugins={[rehypeHighlight]}
-                components={components}
-                urlTransform={(url) => url}
-            >
-                {content}
-            </ReactMarkdown>
+            <div ref={containerRef} className="relative">
+                <ReactMarkdown
+                    className="prose prose-invert max-w-none font-sans"
+                    remarkPlugins={[remarkGfm, remarkDirective, remarkDirectiveRehype, remarkCarousel, remarkGithub]}
+                    rehypePlugins={[rehypeHighlight]}
+                    components={components}
+                    urlTransform={(url) => url}
+                >
+                    {content}
+                </ReactMarkdown>
+
+                {selectionState && !selectionState.isCommenting && (
+                    <CommentButton
+                        top={selectionState.rect.top + window.scrollY - 40} // Position above selection
+                        left={selectionState.rect.left + selectionState.rect.width / 2 - 20} // Center horizontally
+                        onClick={handleAddComment}
+                        visible={true}
+                    />
+                )}
+
+                {selectionState && selectionState.isCommenting && (
+                    <CommentInput
+                        top={selectionState.rect.bottom + window.scrollY + 10} // Position below selection
+                        left={selectionState.rect.left /*+ window.scrollX*/}
+                        onSave={handleSaveComment}
+                        onCancel={handleCancelComment}
+                        visible={true}
+                    />
+                )}
+            </div>
 
             <FileViewerModal
                 isOpen={previewModalOpen}

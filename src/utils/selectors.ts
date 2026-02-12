@@ -53,7 +53,7 @@ export function getOffsetInElement(root: Node, targetNode: Node, targetOffset: n
 
     function traverse(node: Node): boolean {
         if (node === targetNode) {
-            if (node.nodeType === 3) { // Node.TEXT_NODE
+            if (node.nodeType === Node.TEXT_NODE) {
                 offset += targetOffset;
             } else {
                 // Element: add length of preceding children
@@ -65,7 +65,7 @@ export function getOffsetInElement(root: Node, targetNode: Node, targetOffset: n
             return true;
         }
 
-        if (node.nodeType === 3) { // Node.TEXT_NODE
+        if (node.nodeType === Node.TEXT_NODE) {
             offset += (node.textContent || '').length;
         } else {
             for (let i = 0; i < node.childNodes.length; i++) {

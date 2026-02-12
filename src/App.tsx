@@ -167,7 +167,9 @@ function App() {
 
                         <section className="glass-panel rounded-custom flex-1 overflow-y-auto custom-scrollbar p-8">
                             <div className="max-w-4xl mx-auto">
-                                <MarkdownViewer content={content} />
+                                <div className="max-w-4xl mx-auto">
+                                    <MarkdownViewer content={content} filePath={path} />
+                                </div>
                             </div>
                         </section>
                     </main>
