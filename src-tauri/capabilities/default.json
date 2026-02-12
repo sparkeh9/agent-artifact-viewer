@@ -1,0 +1,23 @@
+{
+  "identifier": "default",
+  "description": "Default capabilities of this application",
+  "local": true,
+  "windows": ["*"],
+  "permissions": [
+    "core:default",
+    {
+      "identifier": "shell:allow-open",
+      "allow": [
+        {
+          "name": "open",
+          "args": [
+            {
+              "validator": ".*"
+            }
+          ]
+        }
+      ]
+    },
+    "shell:allow-execute"
+  ]
+}

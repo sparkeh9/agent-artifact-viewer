@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --brand-cyan: #25d1f4;
+    --brand-dark: #0a0a0c;
+  }
+
+  body {
+    @apply bg-brand-dark text-slate-200 font-sans min-h-screen m-0 p-0 overflow-hidden;
+  }
+}
+
+@layer components {
+  .glass-panel {
+    @apply bg-white/[0.03] backdrop-blur-[20px] border border-white/[0.12] shadow-[0_4px_30px_rgba(0,0,0,0.1)];
+  }
+
+  .neon-glow {
+    @apply shadow-[0_0_20px_rgba(37,209,244,0.2)];
+  }
+
+  .neon-border {
+    @apply border border-brand-cyan/50;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    @apply w-1;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-brand-cyan/20 rounded-full;
+  }
+}
