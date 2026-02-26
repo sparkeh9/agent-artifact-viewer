@@ -1,0 +1,42 @@
+{
+  "productName": "artifact-viewer",
+  "version": "0.1.0",
+  "identifier": "com.artifact.viewer",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Artifact Viewer",
+        "width": 1200,
+        "height": 800,
+        "resizable": true,
+        "fullscreen": false,
+        "transparent": true,
+        "decorations": true,
+        "dragDropEnabled": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "plugins": {
+    "cli": {
+        "description": "Artifact Viewer CLI",
+        "longDescription": "Open markdown artifacts directly from the command line.",
+        "args": [
+            {
+                "name": "file",
+                "description": "Path to the markdown file to open",
+                "index": 1,
+                "takesValue": true
+            }
+        ]
+    }
+  }
+}

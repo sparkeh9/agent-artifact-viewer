@@ -1,0 +1,26 @@
+{
+  "comments": [
+    {
+      "id": "0f529b76-140c-40a9-8087-56d03341b718",
+      "target": {
+        "type": "selection",
+        "start": {
+          "path": "d:\\code\\oss\\agent-artifact-viewer\\demo.md",
+          "line": 5,
+          "column": 1,
+          "offset": 72
+        },
+        "end": {
+          "path": "d:\\code\\oss\\agent-artifact-viewer\\demo.md",
+          "line": 6,
+          "column": 7,
+          "offset": 88
+        },
+        "textQuote": "Selection\nCommen"
+      },
+      "content": "asd",
+      "author": "User",
+      "timestamp": "2026-02-12T02:09:06.286Z"
+    }
+  ]
+}
